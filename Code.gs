@@ -172,6 +172,54 @@ function setupSpreadsheet() {
 }
 
 /**
+ * IMPORT DATA SISWA OTOMATIS (1-KLIK)
+ * Mengunduh langsung data 818 siswa dari repositori GitHub resmi ke sheet 'Data_Siswa'
+ */
+function importDataSiswaOtomatis() {
+  const url = "https://raw.githubusercontent.com/gosumenep158b/tobk-kendala-appscript/main/data_siswa.csv";
+  try {
+    const res = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+    if (res.getResponseCode() !== 200) {
+      throw new Error("Gagal mengunduh CSV. Kode respon: " + res.getResponseCode());
+    }
+    const csvData = Utilities.parseCsv(res.getContentText());
+    if (!csvData || csvData.length === 0) {
+      throw new Error("Data CSV kosong.");
+    }
+
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sheetSiswa = ss.getSheetByName(CONFIG.SHEET_DATA_SISWA);
+    if (!sheetSiswa) {
+      sheetSiswa = ss.insertSheet(CONFIG.SHEET_DATA_SISWA);
+    } else {
+      sheetSiswa.clear();
+    }
+
+    // Tulis data CSV ke sheet
+    sheetSiswa.getRange(1, 1, csvData.length, csvData[0].length).setValues(csvData);
+
+    // Format Header
+    sheetSiswa.getRange(1, 1, 1, csvData[0].length)
+      .setBackground("#F59E0B")
+      .setFontColor("#000000")
+      .setFontWeight("bold")
+      .setHorizontalAlignment("center");
+    sheetSiswa.setFrozenRows(1);
+    SpreadsheetApp.flush();
+
+    console.log(`Berhasil mengimpor ${csvData.length - 1} data siswa ke sheet '${CONFIG.SHEET_DATA_SISWA}'!`);
+    return {
+      success: true,
+      totalRows: csvData.length - 1,
+      message: `Berhasil mengimpor ${csvData.length - 1} data siswa ke sheet 'Data_Siswa'!`
+    };
+  } catch (err) {
+    console.error("Gagal impor data siswa:", err);
+    return { success: false, error: err.toString() };
+  }
+}
+
+/**
  * Mengambil properti pengaturan
  */
 function getSettings() {
