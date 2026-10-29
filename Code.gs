@@ -370,8 +370,9 @@ function searchStudents(params) {
   const jenjang = (params.jenjang || "").toUpperCase().trim();
 
   const lastRow = sheetSiswa.getLastRow();
-  const data = sheetSiswa.getRange(2, 1, lastRow - 1, 8).getValues();
-  // index: 0=id, 1=nama, 2=jenjang, 3=nisn, 4=no_hp, 5=no_register, 6=tgl_lahir, 7=asal_sekolah
+  const lastCol = sheetSiswa.getLastColumn();
+  const data = sheetSiswa.getRange(2, 1, lastRow - 1, Math.max(lastCol, 10)).getValues();
+  // index: 0=id, 1=nama, 2=jenjang, 3=nisn, 4=no_hp, 5=no_register, 6=tgl_lahir, 7=asal_sekolah, 8=kota, 9=nama_unit
 
   const results = [];
   for (let i = 0; i < data.length; i++) {
@@ -381,6 +382,8 @@ function searchStudents(params) {
     const noHp = String(row[4] || "");
     const noReg = String(row[5] || "");
     const rowSchool = String(row[7] || "");
+    const kota = String(row[8] || "Sumenep");
+    const unit = String(row[9] || "Unit Jokotole");
 
     if (jenjang && !rowJenjang.includes(jenjang)) continue;
     if (school && rowSchool.toLowerCase() !== school) continue;
@@ -397,7 +400,9 @@ function searchStudents(params) {
       jenjang: rowJenjang,
       noHp: noHp,
       noReg: noReg,
-      sekolah: rowSchool
+      sekolah: rowSchool,
+      kota: kota,
+      unit: unit
     });
 
     if (results.length >= 25) break; // limit agar respon ringan

@@ -788,7 +788,7 @@
           }
 
           dropdown.innerHTML = results.map(s => `
-            <div onclick="selectStudent('${escapeQuotes(s.nama)}', '${escapeQuotes(s.noHp)}', '${escapeQuotes(s.sekolah)}')" class="p-2.5 hover:bg-red-50 cursor-pointer text-xs transition-all">
+            <div onclick="selectStudent('${escapeQuotes(s.nama)}', '${escapeQuotes(s.noHp)}', '${escapeQuotes(s.sekolah)}', '${escapeQuotes(s.kota || '')}', '${escapeQuotes(s.unit || '')}')" class="p-2.5 hover:bg-red-50 cursor-pointer text-xs transition-all">
               <div class="font-bold text-slate-800">${s.nama}</div>
               <div class="text-[11px] text-slate-500 flex items-center justify-between mt-0.5">
                 <span><i class="fa-solid fa-school text-slate-400 mr-1"></i>${s.sekolah}</span>
@@ -805,7 +805,7 @@
         .searchStudents({ query: q, school: school, jenjang: currentJenjang });
     }
 
-    function selectStudent(nama, noHp, sekolah) {
+    function selectStudent(nama, noHp, sekolah, kota, unit) {
       document.getElementById('inputNamaSiswa').value = nama;
       if (noHp) {
         let p = noHp.replace(/[^0-9]/g, '');
@@ -815,6 +815,12 @@
       }
       if (sekolah && !document.getElementById('inputSekolah').value) {
         document.getElementById('inputSekolah').value = sekolah;
+      }
+      if (kota) {
+        document.getElementById('inputKota').value = kota;
+      }
+      if (unit) {
+        document.getElementById('inputUnit').value = unit;
       }
       document.getElementById('studentDropdown').classList.add('hidden');
     }
