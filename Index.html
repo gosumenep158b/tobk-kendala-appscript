@@ -190,7 +190,7 @@
                 <input type="radio" name="jenjang" value="SD" checked onchange="onJenjangChange('SD')" class="hidden">
                 <div class="text-center">
                   <div class="font-extrabold text-sm md:text-base text-slate-800">SD</div>
-                  <span class="text-[10px] text-slate-500 block">Kelas 4, 5, 6</span>
+                  <span class="text-[10px] text-slate-500 block font-bold text-go-red">TOBK Kelas 6</span>
                 </div>
               </label>
 
@@ -198,7 +198,7 @@
                 <input type="radio" name="jenjang" value="SMP" onchange="onJenjangChange('SMP')" class="hidden">
                 <div class="text-center">
                   <div class="font-extrabold text-sm md:text-base text-slate-800">SMP</div>
-                  <span class="text-[10px] text-slate-500 block">Kelas 7, 8, 9</span>
+                  <span class="text-[10px] text-slate-500 block font-bold text-go-red">TOBK Kelas 9</span>
                 </div>
               </label>
 
@@ -212,27 +212,26 @@
             </div>
           </div>
 
-          <!-- 3. ASAL SEKOLAH & AUTO-SEARCH SISWA -->
+          <!-- 3. ASAL SEKOLAH & PILIH SISWA -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                <i class="fa-solid fa-school text-go-red mr-1"></i> Asal Sekolah <span class="text-red-500">*</span>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex justify-between">
+                <span><i class="fa-solid fa-school text-go-red mr-1"></i> Asal Sekolah <span class="text-red-500">*</span></span>
+                <span id="schoolCountBadge" class="text-[10px] text-slate-400 font-normal"></span>
               </label>
-              <input type="text" id="inputSekolah" list="listSekolah" required placeholder="Ketik atau pilih nama sekolah..." oninput="onSekolahInput()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-go-red focus:bg-white transition-all">
-              <datalist id="listSekolah"></datalist>
+              <select id="selectSekolah" required onchange="onSekolahSelectChange()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-go-red focus:bg-white transition-all">
+                <option value="">-- Pilih Asal Sekolah --</option>
+              </select>
             </div>
 
             <div>
               <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex justify-between">
-                <span><i class="fa-solid fa-user text-go-red mr-1"></i> Nama Lengkap Siswa <span class="text-red-500">*</span></span>
-                <span id="studentSearchStatus" class="text-[10px] text-slate-400 font-normal"></span>
+                <span><i class="fa-solid fa-user text-go-red mr-1"></i> Nama Siswa <span class="text-red-500">*</span></span>
+                <span id="studentCountBadge" class="text-[10px] text-slate-400 font-normal"></span>
               </label>
-              <div class="relative">
-                <input type="text" id="inputNamaSiswa" required placeholder="Ketik nama siswa..." oninput="debounceSearchStudent()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-go-red focus:bg-white transition-all">
-                <!-- Dropdown Search Results -->
-                <div id="studentDropdown" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-slate-300 rounded-xl shadow-2xl z-30 max-h-48 overflow-y-auto custom-scroll divide-y divide-slate-100">
-                </div>
-              </div>
+              <select id="selectNamaSiswa" required onchange="onStudentSelectChange()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-go-red focus:bg-white transition-all">
+                <option value="">-- Pilih Nama Siswa --</option>
+              </select>
             </div>
           </div>
 
@@ -291,21 +290,43 @@
               <button type="button" onclick="appendKendalaTag('Soal tidak muncul / layar putih')" class="text-[11px] px-2.5 py-1 bg-slate-100 hover:bg-red-50 hover:text-go-red rounded-lg border border-slate-200 transition-all font-medium">
                 + Soal tidak muncul
               </button>
-              <button type="button" onclick="appendKendalaTag('Token salah / sudah kadaluarsa')" class="text-[11px] px-2.5 py-1 bg-slate-100 hover:bg-red-50 hover:text-go-red rounded-lg border border-slate-200 transition-all font-medium">
-                + Token error
-              </button>
-              <button type="button" onclick="appendKendalaTag('Timer berhenti / waktu habis tiba-tiba')" class="text-[11px] px-2.5 py-1 bg-slate-100 hover:bg-red-50 hover:text-go-red rounded-lg border border-slate-200 transition-all font-medium">
-                + Timer bermasalah
-              </button>
-              <button type="button" onclick="appendKendalaTag('Aplikasi force close / keluar otomatis')" class="text-[11px] px-2.5 py-1 bg-slate-100 hover:bg-red-50 hover:text-go-red rounded-lg border border-slate-200 transition-all font-medium">
-                + Force close
+              <button type="button" onclick="appendKendalaTag('Lupa password / akun tidak bisa login')" class="text-[11px] px-2.5 py-1 bg-red-50 text-go-red hover:bg-red-100 rounded-lg border border-red-200 transition-all font-bold">
+                + Lupa Password
               </button>
               <button type="button" onclick="appendKendalaTag('Jawaban tidak bisa disimpan / gagal submit')" class="text-[11px] px-2.5 py-1 bg-slate-100 hover:bg-red-50 hover:text-go-red rounded-lg border border-slate-200 transition-all font-medium">
                 + Gagal submit
               </button>
             </div>
 
-            <textarea id="inputKendala" rows="4" required placeholder="Jelaskan kendala secara lengkap, contoh: Pada soal nomor 12 opsi pilihan jawaban tidak bisa diklik dan timer berhenti di 05:20..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-go-red focus:bg-white transition-all"></textarea>
+            <textarea id="inputKendala" rows="3" required placeholder="Jelaskan kendala secara lengkap, contoh: Lupa password untuk akun TOBK atau pada soal nomor 12 opsi pilihan jawaban tidak bisa diklik..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-go-red focus:bg-white transition-all"></textarea>
+          </div>
+
+          <!-- 7. UPLOAD SCREENSHOT KENDALA -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+              <span><i class="fa-solid fa-camera text-go-red mr-1"></i> Upload Screenshot Kendala (Bukti Gambar)</span>
+              <span class="text-[10px] text-slate-400 font-normal">Maks 3 MB (JPG/PNG)</span>
+            </label>
+            <div class="border-2 border-dashed border-slate-300 hover:border-go-red rounded-xl p-4 text-center bg-slate-50 transition-all cursor-pointer relative" id="dropAreaScreenshot" onclick="document.getElementById('inputScreenshotFile').click()">
+              <input type="file" id="inputScreenshotFile" accept="image/*" class="hidden" onchange="handleScreenshotSelected(event)">
+              <div id="screenshotEmptyState" class="space-y-1">
+                <i class="fa-solid fa-cloud-arrow-up text-2xl text-slate-400"></i>
+                <div class="text-xs font-bold text-slate-700">Klik untuk unggah screenshot kendala</div>
+                <div class="text-[11px] text-slate-400">Atau seret foto tangkapan layar kemari</div>
+              </div>
+              <div id="screenshotPreviewState" class="hidden flex items-center justify-between bg-white p-2.5 rounded-lg border border-slate-200">
+                <div class="flex items-center space-x-3 text-left">
+                  <img id="screenshotPreviewImg" src="" alt="Preview" class="w-12 h-12 object-cover rounded-lg border border-slate-200">
+                  <div>
+                    <div id="screenshotFileName" class="text-xs font-bold text-slate-800 truncate max-w-[200px]">screenshot.jpg</div>
+                    <div id="screenshotFileSize" class="text-[10px] text-slate-400">0 KB</div>
+                  </div>
+                </div>
+                <button type="button" onclick="removeScreenshot(event)" class="text-red-500 hover:text-red-700 p-1.5 text-sm" title="Hapus Gambar">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </div>
+            </div>
           </div>
 
           <!-- SUBMIT BUTTON -->
@@ -447,7 +468,7 @@
                   <th class="py-3 px-4">Status & Tiket</th>
                   <th class="py-3 px-4">Siswa & Sekolah</th>
                   <th class="py-3 px-4">TOBK & Mapel</th>
-                  <th class="py-3 px-4">Detail Kendala</th>
+                  <th class="py-3 px-4">Detail Kendala & Bukti</th>
                   <th class="py-3 px-4">Follow Up Admin</th>
                   <th class="py-3 px-4 text-center">Aksi / Kirim WA</th>
                 </tr>
@@ -551,6 +572,14 @@
             <span class="font-bold">Kendala:</span>
             <div id="modalKendalaText" class="italic mt-0.5 text-slate-700 bg-white p-2 rounded border border-slate-200"></div>
           </div>
+          <div id="modalScreenshotContainer" class="hidden pt-1">
+            <span class="font-bold text-slate-700">Bukti Screenshot:</span>
+            <div class="mt-1">
+              <a id="modalScreenshotLink" href="#" target="_blank" class="inline-flex items-center text-xs text-blue-600 hover:text-blue-800 font-bold bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200">
+                <i class="fa-solid fa-arrow-up-right-from-square mr-1.5"></i> Buka Foto Screenshot
+              </a>
+            </div>
+          </div>
         </div>
 
         <!-- Form Follow Up -->
@@ -616,11 +645,29 @@
     let allReports = [];
     let activeModalData = null;
 
+    // Screenshot state
+    let selectedScreenshot = {
+      base64: null,
+      name: '',
+      type: '',
+      size: 0
+    };
+
+    // Master Siswa Cache
+    let masterStudents = [];
+
     // Mapel per Jenjang sesuai spesifikasi
     const MAPEL_RULES = {
       SD: ['Bahasa Indonesia', 'Matematika'],
       SMP: ['Bahasa Indonesia', 'Matematika'],
       SMA: ['TPS', 'Literasi']
+    };
+
+    // Kode TOBK default per Jenjang
+    const DEFAULT_TOBK_CODE = {
+      SD: 'TOBK Kelas 6 SD',
+      SMP: 'TOBK Kelas 9 SMP',
+      SMA: 'TOBK UTBK SNBT'
     };
 
     // Saat Halaman Dimuat
@@ -673,12 +720,17 @@
       }
     }
 
-    // Ganti Jenjang
+    // Ganti Jenjang (SD, SMP, SMA)
     function onJenjangChange(jenjang) {
       currentJenjang = jenjang;
       updateJenjangCardStyle(jenjang);
       renderMapelOptions(jenjang);
-      populateSchoolList(jenjang);
+
+      // Set default Kode TOBK
+      document.getElementById('inputKodeTobk').value = DEFAULT_TOBK_CODE[jenjang] || '';
+
+      // Reset & isi ulang dropdown sekolah & siswa
+      populateSchoolDropdown(jenjang);
     }
 
     function updateJenjangCardStyle(selected) {
@@ -722,111 +774,264 @@
       }
     }
 
-    // Fetch Initial Data dari Apps Script
-    function fetchInitialData() {
-      if (typeof google === 'undefined' || !google.script) {
-        console.log("Mode offline / lokal preview.");
+    // ========================================================
+    // SCREENSHOT UPLOAD HANDLERS
+    // ========================================================
+    function handleScreenshotSelected(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        Swal.fire('File Tidak Sesuai', 'Mohon unggah file gambar (JPG, PNG, atau screenshot).', 'warning');
         return;
       }
 
-      google.script.run
-        .withSuccessHandler(res => {
-          initialMetadata = res;
-          if (res.isTelegramActive) {
-            document.getElementById('teleBadge').classList.remove('hidden');
-          }
-          populateSchoolList(currentJenjang);
-        })
-        .withFailureHandler(err => {
-          console.error("Gagal load metadata:", err);
-        })
-        .getInitialData();
+      // Max 3MB
+      if (file.size > 3 * 1024 * 1024) {
+        Swal.fire('Ukuran Terlalu Besar', 'Maksimal ukuran screenshot adalah 3 MB.', 'warning');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        selectedScreenshot.base64 = evt.target.result;
+        selectedScreenshot.name = file.name;
+        selectedScreenshot.type = file.type;
+        selectedScreenshot.size = file.size;
+
+        document.getElementById('screenshotPreviewImg').src = evt.target.result;
+        document.getElementById('screenshotFileName').innerText = file.name;
+        document.getElementById('screenshotFileSize').innerText = Math.round(file.size / 1024) + ' KB';
+
+        document.getElementById('screenshotEmptyState').classList.add('hidden');
+        document.getElementById('screenshotPreviewState').classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
     }
 
-    function populateSchoolList(jenjang) {
-      const datalist = document.getElementById('listSekolah');
-      datalist.innerHTML = '';
-      if (!initialMetadata || !initialMetadata.schoolsByJenjang) return;
+    function removeScreenshot(e) {
+      if (e) e.stopPropagation();
+      selectedScreenshot = { base64: null, name: '', type: '', size: 0 };
+      document.getElementById('inputScreenshotFile').value = '';
+      document.getElementById('screenshotPreviewImg').src = '';
+      document.getElementById('screenshotEmptyState').classList.remove('hidden');
+      document.getElementById('screenshotPreviewState').classList.add('hidden');
+    }
 
-      const schools = initialMetadata.schoolsByJenjang[jenjang] || [];
+    // Fetch Initial Data (di Apps Script atau Vercel / GitHub Fallback)
+    function fetchInitialData() {
+      // 1. Coba dari google.script.run jika di dalam Google Apps Script
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(res => {
+            initialMetadata = res;
+            if (res.isTelegramActive) {
+              document.getElementById('teleBadge').classList.remove('hidden');
+            }
+            populateSchoolDropdown(currentJenjang);
+          })
+          .withFailureHandler(err => {
+            console.warn("Apps Script initial data fail, trying CSV fallback:", err);
+            loadFallbackData();
+          })
+          .getInitialData();
+        return;
+      }
+
+      // 2. Jika di Vercel / standalone, ambil langsung dari CSV repositori GitHub
+      loadFallbackData();
+    }
+
+    // Fallback load master data dari data_siswa.csv
+    function loadFallbackData() {
+      fetch('https://raw.githubusercontent.com/gosumenep158b/tobk-kendala-appscript/main/data_siswa.csv')
+        .then(res => res.text())
+        .then(csvText => {
+          parseMasterCsv(csvText);
+        })
+        .catch(err => {
+          console.error("Gagal load CSV fallback:", err);
+        });
+    }
+
+    function parseMasterCsv(csvText) {
+      const lines = csvText.split(/\r?\n/).filter(l => l.trim().length > 0);
+      if (lines.length <= 1) return;
+
+      const header = lines[0].split(',');
+      masterStudents = [];
+
+      const schoolSets = { SD: new Set(), SMP: new Set(), SMA: new Set() };
+      const studentsByJenjang = { SD: [], SMP: [], SMA: [] };
+
+      for (let i = 1; i < lines.length; i++) {
+        // Simple CSV parser for quoted or unquoted
+        const row = parseCsvLine(lines[i]);
+        if (row.length < 8) continue;
+
+        const nama = (row[1] || '').trim();
+        const jenjang = (row[2] || '').trim().toUpperCase();
+        const noHp = (row[4] || '').trim();
+        const sekolah = (row[7] || '').trim();
+        const kota = (row[8] || 'Sumenep').trim();
+        const unit = (row[9] || 'Unit Jokotole').trim();
+
+        let key = 'SD';
+        if (jenjang.includes('SMP')) key = 'SMP';
+        else if (jenjang.includes('SMA')) key = 'SMA';
+
+        if (sekolah) schoolSets[key].add(sekolah);
+        if (nama) {
+          const item = { nama, jenjang: key, noHp, sekolah, kota, unit };
+          masterStudents.push(item);
+          studentsByJenjang[key].push(item);
+        }
+      }
+
+      initialMetadata = {
+        schoolsByJenjang: {
+          SD: Array.from(schoolSets.SD).sort(),
+          SMP: Array.from(schoolSets.SMP).sort(),
+          SMA: Array.from(schoolSets.SMA).sort()
+        },
+        studentsByJenjang: studentsByJenjang,
+        isTelegramActive: false
+      };
+
+      populateSchoolDropdown(currentJenjang);
+    }
+
+    function parseCsvLine(text) {
+      let p = '', row = [''], i = 0, r = 0, q = false;
+      for (let c of text) {
+        if (c === '"') {
+          q = !q;
+        } else if (c === ',' && !q) {
+          row[++r] = '';
+        } else {
+          row[r] += c;
+        }
+      }
+      return row;
+    }
+
+    // Populate Dropdown Asal Sekolah Sesuai Jenjang
+    function populateSchoolDropdown(jenjang) {
+      const selectSekolah = document.getElementById('selectSekolah');
+      selectSekolah.innerHTML = '<option value="">-- Pilih Asal Sekolah --</option>';
+
+      // Reset dropdown siswa & no hp
+      resetStudentDropdown();
+
+      let schools = [];
+      if (initialMetadata && initialMetadata.schoolsByJenjang) {
+        schools = initialMetadata.schoolsByJenjang[jenjang] || [];
+      }
+
+      // Default fallback jika data belum selesai load
+      if (schools.length === 0) {
+        if (jenjang === 'SD') {
+          schools = [
+            "SDI LUKMANUL HAKIM", "SDIT AL WATHONIYAH", "SDK SANG TIMUR", "SDN BANGSELOK I",
+            "SDN BATUAN I", "SDN KOLOR II", "SDN PAJAGALAN I", "SDN PANGARANGAN I"
+          ];
+        } else if (jenjang === 'SMP') {
+          schools = [
+            "SMPN 1 SUMENEP", "SMPN 2 SUMENEP", "SMPN 3 SUMENEP", "SMPN 4 SUMENEP",
+            "SMPN 1 DASUK", "SMPN 1 DUNGKEK", "SMPN 1 PASONGSONGAN", "SMPN 2 SARONGGI"
+          ];
+        } else {
+          schools = ["SMAN 1 SUMENEP", "SMAN 2 SUMENEP", "SMAN 1 GAPURA", "MAN SUMENEP"];
+        }
+      }
+
       schools.forEach(sch => {
         const opt = document.createElement('option');
         opt.value = sch;
-        datalist.appendChild(opt);
+        opt.textContent = sch;
+        selectSekolah.appendChild(opt);
       });
+
+      document.getElementById('schoolCountBadge').innerText = `${schools.length} Sekolah`;
     }
 
-    // Auto Search Siswa dari Database Master
-    let searchTimeout = null;
-    function debounceSearchStudent() {
-      clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(() => {
-        searchStudentInDb();
-      }, 350);
-    }
+    // Ketika Asal Sekolah Dipilih -> Isi Dropdown Siswa
+    function onSekolahSelectChange() {
+      const selectedSchool = document.getElementById('selectSekolah').value;
+      const selectStudent = document.getElementById('selectNamaSiswa');
+      selectStudent.innerHTML = '<option value="">-- Pilih Nama Siswa --</option>';
 
-    function searchStudentInDb() {
-      const q = document.getElementById('inputNamaSiswa').value.trim();
-      const school = document.getElementById('inputSekolah').value.trim();
-      const dropdown = document.getElementById('studentDropdown');
+      // Kosongkan No. HP
+      document.getElementById('inputNoHp').value = '';
 
-      if (q.length < 2) {
-        dropdown.classList.add('hidden');
+      if (!selectedSchool) {
+        document.getElementById('studentCountBadge').innerText = '';
         return;
       }
 
-      if (typeof google === 'undefined' || !google.script) return;
+      let students = [];
+      if (initialMetadata && initialMetadata.studentsByJenjang) {
+        const pool = initialMetadata.studentsByJenjang[currentJenjang] || [];
+        students = pool.filter(s => s.sekolah.toLowerCase() === selectedSchool.toLowerCase());
+      } else if (masterStudents.length > 0) {
+        students = masterStudents.filter(s => 
+          s.jenjang === currentJenjang && s.sekolah.toLowerCase() === selectedSchool.toLowerCase()
+        );
+      }
 
-      document.getElementById('studentSearchStatus').innerText = 'Mencari siswa...';
+      // Urutkan alfabetis nama siswa
+      students.sort((a, b) => a.nama.localeCompare(b.nama));
 
-      google.script.run
-        .withSuccessHandler(results => {
-          document.getElementById('studentSearchStatus').innerText = '';
-          if (!results || results.length === 0) {
-            dropdown.classList.add('hidden');
-            return;
-          }
+      students.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.nama;
+        opt.textContent = s.nama;
+        opt.dataset.nohp = s.noHp || '';
+        opt.dataset.kota = s.kota || 'Sumenep';
+        opt.dataset.unit = s.unit || 'Unit Jokotole';
+        selectStudent.appendChild(opt);
+      });
 
-          dropdown.innerHTML = results.map(s => `
-            <div onclick="selectStudent('${escapeQuotes(s.nama)}', '${escapeQuotes(s.noHp)}', '${escapeQuotes(s.sekolah)}', '${escapeQuotes(s.kota || '')}', '${escapeQuotes(s.unit || '')}')" class="p-2.5 hover:bg-red-50 cursor-pointer text-xs transition-all">
-              <div class="font-bold text-slate-800">${s.nama}</div>
-              <div class="text-[11px] text-slate-500 flex items-center justify-between mt-0.5">
-                <span><i class="fa-solid fa-school text-slate-400 mr-1"></i>${s.sekolah}</span>
-                <span class="font-mono text-emerald-600 font-semibold">${s.noHp || '-'}</span>
-              </div>
-            </div>
-          `).join('');
+      document.getElementById('studentCountBadge').innerText = `${students.length} Siswa`;
 
-          dropdown.classList.remove('hidden');
-        })
-        .withFailureHandler(err => {
-          document.getElementById('studentSearchStatus').innerText = '';
-        })
-        .searchStudents({ query: q, school: school, jenjang: currentJenjang });
+      if (students.length === 0) {
+        const opt = document.createElement('option');
+        opt.value = "LAINNYA";
+        opt.textContent = "(Nama siswa tidak ditemukan / Lainnya)";
+        selectStudent.appendChild(opt);
+      }
     }
 
-    function selectStudent(nama, noHp, sekolah, kota, unit) {
-      document.getElementById('inputNamaSiswa').value = nama;
-      if (noHp) {
-        let p = noHp.replace(/[^0-9]/g, '');
-        if (p.startsWith('62')) p = p.substring(2);
-        else if (p.startsWith('0')) p = p.substring(1);
-        document.getElementById('inputNoHp').value = p;
+    // Ketika Nama Siswa Dipilih -> Otomatis Isi No. HP, Kota, & Unit
+    function onStudentSelectChange() {
+      const selectStudent = document.getElementById('selectNamaSiswa');
+      const selectedOpt = selectStudent.options[selectStudent.selectedIndex];
+
+      if (!selectedOpt || !selectedOpt.value) {
+        document.getElementById('inputNoHp').value = '';
+        return;
       }
-      if (sekolah && !document.getElementById('inputSekolah').value) {
-        document.getElementById('inputSekolah').value = sekolah;
+
+      const rawHp = selectedOpt.dataset.nohp || '';
+      let clean = rawHp.replace(/[^0-9]/g, '');
+      if (clean.startsWith('62')) clean = clean.substring(2);
+      else if (clean.startsWith('0')) clean = clean.substring(1);
+
+      document.getElementById('inputNoHp').value = clean;
+
+      // Otomatis isi Kota & Unit jika ada di dataset
+      if (selectedOpt.dataset.kota) {
+        document.getElementById('inputKota').value = selectedOpt.dataset.kota;
       }
-      if (kota) {
-        document.getElementById('inputKota').value = kota;
+      if (selectedOpt.dataset.unit) {
+        document.getElementById('inputUnit').value = selectedOpt.dataset.unit;
       }
-      if (unit) {
-        document.getElementById('inputUnit').value = unit;
-      }
-      document.getElementById('studentDropdown').classList.add('hidden');
     }
 
-    function onSekolahInput() {
-      // Optional trigger
+    function resetStudentDropdown() {
+      document.getElementById('selectNamaSiswa').innerHTML = '<option value="">-- Pilih Nama Siswa --</option>';
+      document.getElementById('inputNoHp').value = '';
+      document.getElementById('studentCountBadge').innerText = '';
     }
 
     // Submit Laporan
@@ -841,16 +1046,29 @@
         kota: document.getElementById('inputKota').value,
         unit: document.getElementById('inputUnit').value,
         jenjang: currentJenjang,
-        asalSekolah: document.getElementById('inputSekolah').value,
-        namaSiswa: document.getElementById('inputNamaSiswa').value,
+        asalSekolah: document.getElementById('selectSekolah').value,
+        namaSiswa: document.getElementById('selectNamaSiswa').value,
         noHp: document.getElementById('inputNoHp').value,
         kodeTobk: document.getElementById('inputKodeTobk').value,
         mapel: document.getElementById('inputSelectedMapel').value,
-        kendala: document.getElementById('inputKendala').value
+        kendala: document.getElementById('inputKendala').value,
+        screenshotBase64: selectedScreenshot.base64,
+        screenshotName: selectedScreenshot.name,
+        screenshotMime: selectedScreenshot.type
       };
 
+      if (!payload.asalSekolah) {
+        Swal.fire('Perhatian', 'Silakan pilih asal sekolah.', 'warning');
+        return;
+      }
+
+      if (!payload.namaSiswa) {
+        Swal.fire('Perhatian', 'Silakan pilih nama siswa.', 'warning');
+        return;
+      }
+
       btn.disabled = true;
-      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Mengirim Laporan ke Telegram...`;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Mengirim Laporan & Mengunggah Screenshot...`;
 
       if (typeof google === 'undefined' || !google.script) {
         setTimeout(() => {
@@ -915,9 +1133,11 @@
     }
 
     function resetForm() {
-      document.getElementById('inputNamaSiswa').value = '';
+      resetStudentDropdown();
+      document.getElementById('selectSekolah').value = '';
       document.getElementById('inputNoHp').value = '';
       document.getElementById('inputKendala').value = '';
+      removeScreenshot();
       initTicketCode();
     }
 
@@ -1055,6 +1275,13 @@
               <div class="text-slate-700 line-clamp-3 text-xs bg-slate-50 p-2 rounded-lg border border-slate-100" title="${escapeQuotes(r.kendala)}">
                 "${r.kendala}"
               </div>
+              ${r.screenshotUrl ? `
+                <div class="mt-1.5">
+                  <a href="${r.screenshotUrl}" target="_blank" class="inline-flex items-center text-[11px] text-blue-600 hover:text-blue-800 font-bold bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                    <i class="fa-solid fa-image mr-1"></i> Lihat Screenshot
+                  </a>
+                </div>
+              ` : ''}
             </td>
 
             <td class="py-3 px-4 max-w-xs">
@@ -1123,6 +1350,17 @@
       document.getElementById('modalNamaSiswa').innerText = data.namaSiswa;
       document.getElementById('modalNoHp').innerText = data.noHp;
       document.getElementById('modalKendalaText').innerText = `"${data.kendala}"`;
+
+      // Screenshot Bukti
+      const scContainer = document.getElementById('modalScreenshotContainer');
+      const scLink = document.getElementById('modalScreenshotLink');
+      if (data.screenshotUrl) {
+        scLink.href = data.screenshotUrl;
+        scContainer.classList.remove('hidden');
+      } else {
+        scContainer.classList.add('hidden');
+      }
+
       document.getElementById('modalStatusSelect').value = data.status.toLowerCase().includes('selesai') ? 'Selesai Follow Up' : 'Belum Follow Up';
       document.getElementById('modalAdminName').value = data.adminFollowUp || '';
       document.getElementById('modalCatatanFollowUp').value = data.catatanFollowUp || '';

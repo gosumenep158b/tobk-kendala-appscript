@@ -36,6 +36,8 @@ function doGet(e) {
           search: e.parameter.search || ""
         };
         result = getDashboardData(filters);
+      } else if (action === "importDataSiswaOtomatis") {
+        result = importDataSiswaOtomatis();
       } else {
         result = { success: false, message: "Aksi tidak dikenali" };
       }
@@ -117,7 +119,8 @@ function setupSpreadsheet() {
       "Status",
       "Catatan_Follow_Up",
       "Waktu_Follow_Up",
-      "Admin_Follow_Up"
+      "Admin_Follow_Up",
+      "Link_Screenshot"
     ];
     sheetLaporan.appendRow(headers);
     sheetLaporan.getRange(1, 1, 1, headers.length)
@@ -301,10 +304,17 @@ function getInitialData() {
     SMA: []
   };
 
+  let studentsByJenjang = {
+    SD: [],
+    SMP: [],
+    SMA: []
+  };
+
   if (sheetSiswa && sheetSiswa.getLastRow() > 1) {
     const lastRow = sheetSiswa.getLastRow();
-    const data = sheetSiswa.getRange(2, 1, lastRow - 1, 8).getValues();
-    // Col 2: jenjang (index 2), Col 7: asal_sekolah (index 7)
+    const lastCol = sheetSiswa.getLastColumn();
+    const data = sheetSiswa.getRange(2, 1, lastRow - 1, Math.max(lastCol, 10)).getValues();
+    // Col 1: nama, Col 2: jenjang, Col 4: no_hp, Col 7: asal_sekolah, Col 8: kota, Col 9: nama_unit
     const schoolSets = {
       SD: new Set(),
       SMP: new Set(),
@@ -312,13 +322,27 @@ function getInitialData() {
     };
 
     data.forEach(r => {
+      const nama = String(r[1] || "").trim();
       const jenjang = String(r[2] || "").trim().toUpperCase();
+      const noHp = String(r[4] || "").trim();
       const sekolah = String(r[7] || "").trim();
-      if (sekolah) {
-        if (jenjang.includes("SD")) schoolSets.SD.add(sekolah);
-        else if (jenjang.includes("SMP")) schoolSets.SMP.add(sekolah);
-        else if (jenjang.includes("SMA") || jenjang.includes("SMK") || jenjang.includes("MA")) schoolSets.SMA.add(sekolah);
-        else schoolSets.SD.add(sekolah); // default fallback
+      const kota = String(r[8] || "Sumenep").trim();
+      const unit = String(r[9] || "Unit Jokotole").trim();
+
+      let targetKey = "SD";
+      if (jenjang.includes("SMP")) targetKey = "SMP";
+      else if (jenjang.includes("SMA") || jenjang.includes("SMK") || jenjang.includes("MA")) targetKey = "SMA";
+
+      if (sekolah) schoolSets[targetKey].add(sekolah);
+
+      if (nama) {
+        studentsByJenjang[targetKey].push({
+          nama: nama,
+          sekolah: sekolah,
+          noHp: noHp,
+          kota: kota,
+          unit: unit
+        });
       }
     });
 
@@ -351,6 +375,7 @@ function getInitialData() {
     kotaList: kotaList,
     unitList: unitList,
     schoolsByJenjang: schoolsByJenjang,
+    studentsByJenjang: studentsByJenjang,
     isTelegramActive: settings.isTelegramActive
   };
 }
@@ -437,6 +462,10 @@ function sendTelegramNotification(laporan) {
     return { success: false, reason: "Telegram belum dikonfigurasi" };
   }
 
+  const screenshotLine = laporan.screenshotUrl 
+    ? `\n🖼️ <b>Screenshot Kendala:</b> <a href="${laporan.screenshotUrl}">Lihat Gambar / Bukti</a>\n` 
+    : "";
+
   const text = 
     `🔴 <b>LAPORAN KENDALA TOBK GO</b> 🔴\n` +
     `━━━━━━━━━━━━━━━━━━━━\n` +
@@ -451,6 +480,7 @@ function sendTelegramNotification(laporan) {
     `📝 <b>Kode TOBK:</b> <code>${escapeHtml(laporan.kodeTobk)}</code>\n` +
     `⚠️ <b>Detail Kendala:</b>\n` +
     `<i>"${escapeHtml(laporan.kendala)}"</i>\n` +
+    screenshotLine +
     `━━━━━━━━━━━━━━━━━━━━\n` +
     `Status: ⏳ <b>MENUNGGU FOLLOW UP</b>\n` +
     `<i>Aplikasi Helpdesk Ganesha Operation</i>`;
@@ -484,6 +514,39 @@ function sendTelegramNotification(laporan) {
 }
 
 /**
+ * Helper simpan screenshot base64 ke Google Drive folder Helpdesk
+ */
+function saveScreenshotToDrive(ticketCode, fileBase64, fileName, mimeType) {
+  if (!fileBase64) return "";
+  try {
+    const folderName = "Screenshots_Kendala_TOBK";
+    const folders = DriveApp.getFoldersByName(folderName);
+    let targetFolder;
+    if (folders.hasNext()) {
+      targetFolder = folders.next();
+    } else {
+      targetFolder = DriveApp.createFolder(folderName);
+      targetFolder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    }
+
+    // Ekstrak data base64
+    let cleanBase64 = fileBase64;
+    if (cleanBase64.indexOf("base64,") !== -1) {
+      cleanBase64 = cleanBase64.split("base64,")[1];
+    }
+    const decodedBytes = Utilities.base64Decode(cleanBase64);
+    const safeName = ticketCode + "_" + (fileName || "screenshot.jpg");
+    const blob = Utilities.newBlob(decodedBytes, mimeType || "image/jpeg", safeName);
+    const file = targetFolder.createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    return file.getUrl();
+  } catch (err) {
+    console.error("Gagal menyimpan screenshot ke Drive:", err);
+    return "";
+  }
+}
+
+/**
  * Siswa Submit Laporan Kendala
  */
 function submitLaporan(payload) {
@@ -503,6 +566,17 @@ function submitLaporan(payload) {
   const now = new Date();
   const timestampStr = Utilities.formatDate(now, "Asia/Jakarta", "yyyy-MM-dd HH:mm:ss");
 
+  // Simpan Screenshot jika ada
+  let screenshotUrl = "";
+  if (payload.screenshotBase64) {
+    screenshotUrl = saveScreenshotToDrive(
+      ticketCode,
+      payload.screenshotBase64,
+      payload.screenshotName,
+      payload.screenshotMime
+    );
+  }
+
   const rowData = [
     timestampStr,
     ticketCode,
@@ -518,7 +592,8 @@ function submitLaporan(payload) {
     "Belum Follow Up",
     "", // Catatan Follow Up
     "", // Waktu Follow Up
-    ""  // Admin Follow Up
+    "", // Admin Follow Up
+    screenshotUrl // Link_Screenshot (Col P)
   ];
 
   sheetLaporan.appendRow(rowData);
@@ -535,7 +610,8 @@ function submitLaporan(payload) {
     unit: payload.unit || "-",
     mapel: payload.mapel || "-",
     kodeTobk: payload.kodeTobk || "-",
-    kendala: payload.kendala.trim()
+    kendala: payload.kendala.trim(),
+    screenshotUrl: screenshotUrl
   };
 
   const teleResult = sendTelegramNotification(telegramData);
@@ -544,6 +620,7 @@ function submitLaporan(payload) {
     success: true,
     ticketCode: ticketCode,
     timestamp: timestampStr,
+    screenshotUrl: screenshotUrl,
     telegramSent: teleResult.success,
     message: "Laporan kendala berhasil dikirimkan!"
   };
@@ -607,6 +684,7 @@ function getDashboardData(filters) {
     const catatan = String(row[12] || "");
     const waktuFollowUp = String(row[13] || "");
     const adminFollowUp = String(row[14] || "");
+    const screenshotUrl = String(row[15] || "");
 
     // Filter status
     if (filterStatus === "PENDING" && isDone) continue;
@@ -642,7 +720,8 @@ function getDashboardData(filters) {
       status: statusNormalized,
       catatanFollowUp: catatan,
       waktuFollowUp: waktuFollowUp,
-      adminFollowUp: adminFollowUp
+      adminFollowUp: adminFollowUp,
+      screenshotUrl: screenshotUrl
     });
   }
 
