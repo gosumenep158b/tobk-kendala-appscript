@@ -1,8 +1,6 @@
 {
-  "version": 2,
   "cleanUrls": true,
-  "public": true,
   "rewrites": [
-    { "source": "/(.*)", "destination": "/Index.html" }
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

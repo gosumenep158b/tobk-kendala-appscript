@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Helpdesk & Pelaporan Kendala TOBK - Ganesha Operation</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            go: {
+              red: '#C41230',
+              redHover: '#A30F27',
+              redLight: '#FEE2E2',
+              yellow: '#F59E0B',
+              yellowHover: '#D97706',
+              yellowLight: '#FEF3C7',
+              dark: '#1E293B',
+              navy: '#0F172A'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Font: Inter / Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #F8FAFC;
+    }
+    .go-pattern {
+      background-color: #C41230;
+      background-image: radial-gradient(#E11D48 1.5px, transparent 1.5px), radial-gradient(#F59E0B 1.5px, #C41230 1.5px);
+      background-size: 60px 60px;
+      background-position: 0 0, 30px 30px;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+    }
+  </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+  <!-- HEADER -->
+  <header class="go-pattern text-white shadow-lg sticky top-0 z-40 border-b-4 border-go-yellow">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center space-x-3">
+        <div class="w-11 h-11 bg-white rounded-xl shadow-md flex items-center justify-center p-1.5 border-2 border-go-yellow">
+          <!-- Logo Badge GO -->
+          <div class="w-full h-full rounded-lg bg-go-red flex items-center justify-center font-black text-white text-lg tracking-wider">
+            GO
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="text-xs uppercase tracking-widest font-bold bg-go-yellow text-slate-900 px-2 py-0.5 rounded-full">
+              Helpdesk TOBK
+            </span>
+            <span id="teleBadge" class="hidden text-xs bg-emerald-500 text-white px-2 py-0.5 rounded-full font-medium">
+              <i class="fa-brands fa-telegram mr-1"></i> Telegram Terhubung
+            </span>
+          </div>
+          <h1 class="text-lg md:text-xl font-black tracking-tight leading-snug">
+            GANESHA OPERATION
+          </h1>
+          <p class="text-xs text-red-100 hidden sm:block">
+            Sistem Pelaporan Kendala & Tindak Lanjut Try Out Berbasis Komputer
+          </p>
+        </div>
+      </div>
+
+      <!-- NAVIGATION TABS -->
+      <div class="flex items-center space-x-2 bg-black/20 p-1 rounded-xl backdrop-blur-sm">
+        <button id="tabBtnForm" onclick="switchTab('form')" class="px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-bold transition-all bg-white text-go-red shadow">
+          <i class="fa-solid fa-file-pen mr-1.5"></i> Lapor Kendala
+        </button>
+        <button id="tabBtnDashboard" onclick="switchTab('dashboard')" class="px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all text-white hover:bg-white/10">
+          <i class="fa-solid fa-chart-line mr-1.5"></i> Dashboard Rekap
+        </button>
+        <button id="tabBtnSettings" onclick="switchTab('settings')" class="px-2.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all text-white hover:bg-white/10" title="Pengaturan Sistem">
+          <i class="fa-solid fa-gear"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-1">
+
+    <!-- ======================================================== -->
+    <!-- TAB 1: FORM LAPOR SISWA                                   -->
+    <!-- ======================================================== -->
+    <section id="sectionForm" class="max-w-3xl mx-auto space-y-6">
+      
+      <!-- Banner Pengantar -->
+      <div class="bg-gradient-to-r from-red-50 via-amber-50 to-white border-l-4 border-go-red p-4 rounded-xl shadow-sm flex items-start gap-3">
+        <div class="w-10 h-10 rounded-xl bg-go-red/10 text-go-red flex items-center justify-center shrink-0 mt-0.5">
+          <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+        </div>
+        <div>
+          <h2 class="text-sm md:text-base font-bold text-slate-900">
+            Form Pelaporan Kendala TOBK Siswa
+          </h2>
+          <p class="text-xs md:text-sm text-slate-600 mt-0.5">
+            Jika kamu mengalami kendala teknis saat mengerjakan TOBK (soal tidak muncul, token error, timer, dll), isi form di bawah. Laporan akan langsung diteruskan ke tim helpdesk via Telegram untuk segera ditangani.
+          </p>
+        </div>
+      </div>
+
+      <!-- Card Form -->
+      <div class="bg-white rounded-2xl shadow-xl border border-slate-200/80 overflow-hidden">
+        <div class="bg-gradient-to-r from-go-red to-rose-700 px-6 py-4 text-white flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+              <i class="fa-solid fa-clipboard-question"></i>
+            </span>
+            <span class="font-bold text-base md:text-lg">Detail Kendala TOBK</span>
+          </div>
+          <div class="text-right">
+            <span class="text-[11px] uppercase tracking-wider text-amber-200 font-semibold block">Kode Tiket Anda</span>
+            <span id="displayTicketCode" class="font-mono font-black text-sm md:text-base text-go-yellow bg-black/30 px-2.5 py-0.5 rounded-md border border-white/10">
+              MEMUAT...
+            </span>
+          </div>
+        </div>
+
+        <form id="laporForm" onsubmit="handleFormSubmit(event)" class="p-6 md:p-8 space-y-6">
+
+          <!-- 1. KOTA & UNIT -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                <i class="fa-solid fa-city text-go-red mr-1"></i> Nama Kota <span class="text-red-500">*</span>
+              </label>
+              <select id="inputKota" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-go-red focus:bg-white transition-all">
+                <option value="">-- Pilih Kota --</option>
+                <option value="Sumenep" selected>Sumenep</option>
+                <option value="Pamekasan">Pamekasan</option>
+                <option value="Sampang">Sampang</option>
+                <option value="Bangkalan">Bangkalan</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                <i class="fa-solid fa-building-flag text-go-red mr-1"></i> Nama Unit GO <span class="text-red-500">*</span>
+              </label>
+              <select id="inputUnit" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-go-red focus:bg-white transition-all">
+                <option value="">-- Pilih Unit Cabang --</option>
+                <option value="Unit Agus Salim">Unit Agus Salim</option>
+                <option value="Unit Jokotole" selected>Unit Jokotole</option>
+                <option value="Unit Parteker">Unit Parteker</option>
+                <option value="Unit Imam Bonjol">Unit Imam Bonjol</option>
+                <option value="Unit Cempaka">Unit Cempaka</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 2. JENJANG PENDIDIKAN (SD, SMP, SMA) -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+              <i class="fa-solid fa-graduation-cap text-go-red mr-1"></i> Jenjang Pendidikan <span class="text-red-500">*</span>
+            </label>
+            <div class="grid grid-cols-3 gap-3">
+              <label class="relative flex items-center justify-center p-3 border-2 border-slate-200 rounded-xl cursor-pointer hover:border-go-red transition-all jenjang-card" id="cardJenjangSD">
+                <input type="radio" name="jenjang" value="SD" checked onchange="onJenjangChange('SD')" class="hidden">
+                <div class="text-center">
+                  <div class="font-extrabold text-sm md:text-base text-slate-800">SD</div>
+                  <span class="text-[10px] text-slate-500 block">Kelas 4, 5, 6</span>
+                </div>
+              </label>
+
+              <label class="relative flex items-center justify-center p-3 border-2 border-slate-200 rounded-xl cursor-pointer hover:border-go-red transition-all jenjang-card" id="cardJenjangSMP">
+                <input type="radio" name="jenjang" value="SMP" onchange="onJenjangChange('SMP')" class="hidden">
+                <div class="text-center">
+                  <div class="font-extrabold text-sm md:text-base text-slate-800">SMP</div>
+                  <span class="text-[10px] text-slate-500 block">Kelas 7, 8, 9</span>
+                </div>
+              </label>
+
+              <label class="relative flex items-center justify-center p-3 border-2 border-slate-200 rounded-xl cursor-pointer hover:border-go-red transition-all jenjang-card" id="cardJenjangSMA">
+                <input type="radio" name="jenjang" value="SMA" onchange="onJenjangChange('SMA')" class="hidden">
+                <div class="text-center">
+                  <div class="font-extrabold text-sm md:text-base text-slate-800">SMA / SMK</div>
+                  <span class="text-[10px] text-slate-500 block">Kelas 10, 11, 12 / UTBK</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- 3. ASAL SEKOLAH & AUTO-SEARCH SISWA -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                <i class="fa-solid fa-school text-go-red mr-1"></i> Asal Sekolah <span class="text-red-500">*</span>
+              </label>
+              <input type="text" id="inputSekolah" list="listSekolah" required placeholder="Ketik atau pilih nama sekolah..." oninput="onSekolahInput()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-go-red focus:bg-white transition-all">
+              <datalist id="listSekolah"></datalist>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex justify-between">
+                <span><i class="fa-solid fa-user text-go-red mr-1"></i> Nama Lengkap Siswa <span class="text-red-500">*</span></span>
+                <span id="studentSearchStatus" class="text-[10px] text-slate-400 font-normal"></span>
+              </label>
+              <div class="relative">
+                <input type="text" id="inputNamaSiswa" required placeholder="Ketik nama siswa..." oninput="debounceSearchStudent()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-go-red focus:bg-white transition-all">
+                <!-- Dropdown Search Results -->
+                <div id="studentDropdown" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-slate-300 rounded-xl shadow-2xl z-30 max-h-48 overflow-y-auto custom-scroll divide-y divide-slate-100">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. NO HP & KODE TOBK -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                <i class="fa-brands fa-whatsapp text-emerald-600 mr-1 text-sm"></i> No. HP / WhatsApp <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <span class="absolute left-3.5 top-2.5 text-xs font-bold text-slate-400">+62</span>
+                <input type="tel" id="inputNoHp" required placeholder="81234567890" class="w-full pl-12 pr-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-go-red focus:bg-white transition-all">
+              </div>
+              <span class="text-[10px] text-slate-500 mt-1 block">Untuk menerima balasan hasil tindak lanjut dari admin</span>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                <i class="fa-solid fa-barcode text-go-red mr-1"></i> Kode TOBK <span class="text-red-500">*</span>
+              </label>
+              <input type="text" id="inputKodeTobk" required list="listKodeTobk" placeholder="Contoh: TOBK 1, TOBK TKA SD, UTBK-1" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-go-red focus:bg-white transition-all">
+              <datalist id="listKodeTobk">
+                <option value="TOBK 1 - TKA SD"></option>
+                <option value="TOBK 2 - TKA SD"></option>
+                <option value="TOBK 1 - SMP"></option>
+                <option value="TOBK 2 - SMP"></option>
+                <option value="TOBK 1 - UTBK SNBT"></option>
+                <option value="TOBK 2 - UTBK SNBT"></option>
+                <option value="TOBK REGULER 26/27"></option>
+              </datalist>
+            </div>
+          </div>
+
+          <!-- 5. MATA PELAJARAN (DYNAMIC BASED ON JENJANG) -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <i class="fa-solid fa-book-bookmark text-go-red mr-1"></i> Mata Pelajaran yang Bermasalah <span class="text-red-500">*</span>
+            </label>
+            <div id="mapelOptionsContainer" class="grid grid-cols-2 gap-3">
+              <!-- Dynamically populated -->
+            </div>
+            <input type="hidden" id="inputSelectedMapel" required>
+          </div>
+
+          <!-- 6. URAIAN KENDALA -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <i class="fa-solid fa-comment-dots text-go-red mr-1"></i> Uraian Kendala yang Dialami <span class="text-red-500">*</span>
+              </label>
+              <span class="text-[11px] text-slate-400">Pilih cepat atau ketik sendiri</span>
+            </div>
+
+            <!-- Quick tag buttons -->
+            <div class="flex flex-wrap gap-1.5 mb-2.5">
+              <button type="button" onclick="appendKendalaTag('Soal tidak muncul / layar putih')" class="text-[11px] px-2.5 py-1 bg-slate-100 hover:bg-red-50 hover:text-go-red rounded-lg border border-slate-200 transition-all font-medium">
+                + Soal tidak muncul
+              </button>
+              <button type="button" onclick="appendKendalaTag('Token salah / sudah kadaluarsa')" class="text-[11px] px-2.5 py-1 bg-slate-100 hover:bg-red-50 hover:text-go-red rounded-lg border border-slate-200 transition-all font-medium">
+                + Token error
+              </button>
+              <button type="button" onclick="appendKendalaTag('Timer berhenti / waktu habis tiba-tiba')" class="text-[11px] px-2.5 py-1 bg-slate-100 hover:bg-red-50 hover:text-go-red rounded-lg border border-slate-200 transition-all font-medium">
+                + Timer bermasalah
+              </button>
+              <button type="button" onclick="appendKendalaTag('Aplikasi force close / keluar otomatis')" class="text-[11px] px-2.5 py-1 bg-slate-100 hover:bg-red-50 hover:text-go-red rounded-lg border border-slate-200 transition-all font-medium">
+                + Force close
+              </button>
+              <button type="button" onclick="appendKendalaTag('Jawaban tidak bisa disimpan / gagal submit')" class="text-[11px] px-2.5 py-1 bg-slate-100 hover:bg-red-50 hover:text-go-red rounded-lg border border-slate-200 transition-all font-medium">
+                + Gagal submit
+              </button>
+            </div>
+
+            <textarea id="inputKendala" rows="4" required placeholder="Jelaskan kendala secara lengkap, contoh: Pada soal nomor 12 opsi pilihan jawaban tidak bisa diklik dan timer berhenti di 05:20..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-go-red focus:bg-white transition-all"></textarea>
+          </div>
+
+          <!-- SUBMIT BUTTON -->
+          <div class="pt-2">
+            <button type="submit" id="btnSubmitLaporan" class="w-full py-3.5 px-6 bg-gradient-to-r from-go-red via-rose-600 to-go-red text-white font-extrabold rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center space-x-2 text-base border-2 border-go-yellow">
+              <i class="fa-solid fa-paper-plane"></i>
+              <span>KIRIM LAPORAN KENDALA SEKARANG</span>
+            </button>
+            <p class="text-[11px] text-center text-slate-500 mt-2">
+              <i class="fa-solid fa-shield-halved text-emerald-600 mr-1"></i> Laporan Anda langsung terkirim ke Telegram Tim Helpdesk Ganesha Operation secara realtime.
+            </p>
+          </div>
+
+        </form>
+      </div>
+
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB 2: DASHBOARD ADMIN & REKAP LAPORAN                    -->
+    <!-- ======================================================== -->
+    <section id="sectionDashboard" class="hidden space-y-6">
+
+      <!-- Admin Auth Modal Gate (If Locked) -->
+      <div id="adminPinGate" class="max-w-md mx-auto my-12 bg-white rounded-2xl shadow-xl border border-slate-200 p-8 text-center space-y-4">
+        <div class="w-16 h-16 bg-red-100 text-go-red rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-inner">
+          <i class="fa-solid fa-lock"></i>
+        </div>
+        <h2 class="text-xl font-black text-slate-900">Akses Dashboard Admin</h2>
+        <p class="text-xs text-slate-500">
+          Halaman ini khusus untuk Tim Admin & Helpdesk GO dalam merekap dan mem-follow up kendala siswa.
+        </p>
+        <div class="space-y-3 pt-2">
+          <input type="password" id="inputAdminPin" placeholder="Masukkan PIN Admin (Default: 1984)" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-center text-lg tracking-widest font-mono font-bold focus:ring-2 focus:ring-go-red focus:bg-white">
+          <button onclick="handleAdminLogin()" class="w-full py-3 bg-go-red text-white font-bold rounded-xl shadow hover:bg-go-redHover transition-all">
+            <i class="fa-solid fa-arrow-right-to-bracket mr-2"></i> Buka Dashboard
+          </button>
+        </div>
+      </div>
+
+      <!-- Admin Main Content (Shown after login) -->
+      <div id="adminContent" class="hidden space-y-6">
+
+        <!-- Stat Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <!-- Total Laporan -->
+          <div class="bg-white rounded-2xl p-4 md:p-5 border border-slate-200 shadow-sm relative overflow-hidden">
+            <div class="absolute -right-3 -top-3 w-16 h-16 bg-red-50 rounded-full flex items-center justify-center text-red-300 text-2xl pointer-events-none">
+              <i class="fa-solid fa-inbox"></i>
+            </div>
+            <div class="text-[11px] uppercase font-bold tracking-wider text-slate-500">Total Laporan</div>
+            <div id="statTotal" class="text-2xl md:text-3xl font-black text-slate-900 mt-1">0</div>
+            <div class="text-[11px] text-slate-400 mt-1 flex items-center">
+              <i class="fa-solid fa-database mr-1"></i> Semua Laporan Masuk
+            </div>
+          </div>
+
+          <!-- Belum Follow Up -->
+          <div class="bg-gradient-to-br from-amber-500 to-amber-600 text-white rounded-2xl p-4 md:p-5 shadow-md relative overflow-hidden">
+            <div class="absolute -right-3 -top-3 w-16 h-16 bg-white/10 rounded-full flex items-center justify-center text-2xl pointer-events-none">
+              <i class="fa-solid fa-clock"></i>
+            </div>
+            <div class="text-[11px] uppercase font-bold tracking-wider text-amber-100">Belum Follow Up</div>
+            <div id="statPending" class="text-2xl md:text-3xl font-black mt-1">0</div>
+            <div class="text-[11px] text-amber-100 mt-1 flex items-center">
+              <i class="fa-solid fa-circle-exclamation mr-1"></i> Menunggu Respon
+            </div>
+          </div>
+
+          <!-- Selesai Follow Up -->
+          <div class="bg-gradient-to-br from-emerald-600 to-emerald-700 text-white rounded-2xl p-4 md:p-5 shadow-md relative overflow-hidden">
+            <div class="absolute -right-3 -top-3 w-16 h-16 bg-white/10 rounded-full flex items-center justify-center text-2xl pointer-events-none">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div class="text-[11px] uppercase font-bold tracking-wider text-emerald-100">Sudah Follow Up</div>
+            <div id="statDone" class="text-2xl md:text-3xl font-black mt-1">0</div>
+            <div class="text-[11px] text-emerald-100 mt-1 flex items-center">
+              <i class="fa-solid fa-circle-check mr-1"></i> Solusi Terkirim
+            </div>
+          </div>
+
+          <!-- Persentase Penyelesaian -->
+          <div class="bg-white rounded-2xl p-4 md:p-5 border border-slate-200 shadow-sm relative overflow-hidden">
+            <div class="absolute -right-3 -top-3 w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 text-2xl pointer-events-none">
+              <i class="fa-solid fa-chart-pie"></i>
+            </div>
+            <div class="text-[11px] uppercase font-bold tracking-wider text-slate-500">Tingkat Follow Up</div>
+            <div id="statPercent" class="text-2xl md:text-3xl font-black text-emerald-600 mt-1">0%</div>
+            <div class="text-[11px] text-slate-400 mt-1">Laporan Tertangani</div>
+          </div>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-2">
+            <!-- Filter Status -->
+            <div class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl text-xs font-semibold">
+              <button onclick="setFilterStatus('ALL')" id="fltStatusAll" class="px-3 py-1.5 rounded-lg bg-white shadow-sm text-slate-800">Semua</button>
+              <button onclick="setFilterStatus('PENDING')" id="fltStatusPending" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900">⏳ Belum</button>
+              <button onclick="setFilterStatus('DONE')" id="fltStatusDone" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900">✅ Selesai</button>
+            </div>
+
+            <!-- Filter Jenjang -->
+            <select id="filterJenjang" onchange="loadDashboardData()" class="px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-go-red">
+              <option value="ALL">Semua Jenjang</option>
+              <option value="SD">Jenjang SD</option>
+              <option value="SMP">Jenjang SMP</option>
+              <option value="SMA">Jenjang SMA</option>
+            </select>
+          </div>
+
+          <div class="flex items-center space-x-2 flex-1 max-w-sm">
+            <div class="relative w-full">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-400"></i>
+              <input type="text" id="filterSearch" oninput="debounceFilterSearch()" placeholder="Cari nama, tiket, sekolah, no HP..." class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-go-red focus:bg-white">
+            </div>
+            <button onclick="loadDashboardData()" title="Segarkan Data" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all shrink-0">
+              <i class="fa-solid fa-rotate"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabel / List Rekap Laporan -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+            <h3 class="font-extrabold text-sm md:text-base text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-table-list text-go-red"></i>
+              <span>Daftar Laporan Kendala TOBK</span>
+            </h3>
+            <span id="recordCountBadge" class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-bold">
+              0 Laporan
+            </span>
+          </div>
+
+          <div class="overflow-x-auto custom-scroll">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider border-b border-slate-200">
+                  <th class="py-3 px-4">Status & Tiket</th>
+                  <th class="py-3 px-4">Siswa & Sekolah</th>
+                  <th class="py-3 px-4">TOBK & Mapel</th>
+                  <th class="py-3 px-4">Detail Kendala</th>
+                  <th class="py-3 px-4">Follow Up Admin</th>
+                  <th class="py-3 px-4 text-center">Aksi / Kirim WA</th>
+                </tr>
+              </thead>
+              <tbody id="tableLaporanBody" class="divide-y divide-slate-100 text-slate-700">
+                <tr>
+                  <td colspan="6" class="py-8 text-center text-slate-400">
+                    <i class="fa-solid fa-spinner fa-spin mr-2"></i> Memuat data laporan...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB 3: PENGATURAN TELEGRAM & SISTEM                       -->
+    <!-- ======================================================== -->
+    <section id="sectionSettings" class="hidden max-w-2xl mx-auto space-y-6">
+      <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+        <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-sliders text-go-yellow"></i>
+            <span class="font-bold text-base">Pengaturan Integrasi & Keamanan</span>
+          </div>
+          <span class="text-xs bg-white/10 px-2.5 py-1 rounded-md text-slate-300">Konfigurasi</span>
+        </div>
+
+        <form id="settingsForm" onsubmit="handleSaveSettings(event)" class="p-6 md:p-8 space-y-5">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <i class="fa-brands fa-telegram text-sky-500 mr-1 text-sm"></i> Telegram Bot Token
+            </label>
+            <input type="text" id="settingBotToken" placeholder="Contoh: 1234567890:ABCdefGhIJKlmNoPQRsTUVwxyZ" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono focus:ring-2 focus:ring-go-red focus:bg-white">
+            <span class="text-[11px] text-slate-400 mt-1 block">Dapatkan dari @BotFather di Telegram</span>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <i class="fa-solid fa-hashtag text-sky-500 mr-1"></i> Telegram Chat ID (Grup / Channel)
+            </label>
+            <input type="text" id="settingChatId" placeholder="Contoh: -1001234567890" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono focus:ring-2 focus:ring-go-red focus:bg-white">
+            <span class="text-[11px] text-slate-400 mt-1 block">Gunakan awalan minus (-) untuk grup/supergrup Telegram</span>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <i class="fa-solid fa-key text-go-yellow mr-1"></i> PIN Akses Dashboard Admin
+            </label>
+            <input type="text" id="settingAdminPin" placeholder="Default: 1984" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono focus:ring-2 focus:ring-go-red focus:bg-white">
+            <span class="text-[11px] text-slate-400 mt-1 block">PIN untuk mengunci halaman dashboard dari siswa</span>
+          </div>
+
+          <div class="pt-4 flex flex-col sm:flex-row gap-3">
+            <button type="submit" class="flex-1 py-3 px-4 bg-go-red hover:bg-go-redHover text-white font-bold rounded-xl shadow transition-all flex items-center justify-center gap-2 text-sm">
+              <i class="fa-solid fa-floppy-disk"></i> Simpan Pengaturan
+            </button>
+            <button type="button" onclick="handleSetupDatabase()" class="py-3 px-4 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl shadow transition-all flex items-center justify-center gap-2 text-sm">
+              <i class="fa-solid fa-database"></i> Inisialisasi Sheet Otomatis
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL FOLLOW UP ADMIN -->
+  <div id="modalFollowUp" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden transform transition-all animate-fadeIn">
+      <div class="bg-gradient-to-r from-go-red to-rose-700 text-white p-4 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-pen-to-square text-go-yellow"></i>
+          <span class="font-bold text-sm md:text-base">Tindak Lanjut Kendala TOBK</span>
+        </div>
+        <button onclick="closeModalFollowUp()" class="text-white/80 hover:text-white text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <!-- Info Singkat -->
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs space-y-1">
+          <div class="flex justify-between">
+            <span class="text-slate-500">Kode Tiket:</span>
+            <span id="modalTicketCode" class="font-mono font-bold text-go-red"></span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500">Nama Siswa:</span>
+            <span id="modalNamaSiswa" class="font-bold text-slate-800"></span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500">No. WhatsApp:</span>
+            <span id="modalNoHp" class="font-mono font-semibold text-emerald-700"></span>
+          </div>
+          <div class="pt-1 text-slate-600">
+            <span class="font-bold">Kendala:</span>
+            <div id="modalKendalaText" class="italic mt-0.5 text-slate-700 bg-white p-2 rounded border border-slate-200"></div>
+          </div>
+        </div>
+
+        <!-- Form Follow Up -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            Status Tindak Lanjut
+          </label>
+          <select id="modalStatusSelect" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-go-red">
+            <option value="Selesai Follow Up">✅ Selesai Follow Up (Masalah Tertangani)</option>
+            <option value="Belum Follow Up">⏳ Masih Belum Selesai / Menunggu Informasi</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            Nama Petugas / Admin GO
+          </label>
+          <input type="text" id="modalAdminName" placeholder="Contoh: Kak Reza / Admin Unit Jokotole" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-go-red">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            Catatan Solusi / Hasil Follow Up untuk Siswa
+          </label>
+          <textarea id="modalCatatanFollowUp" rows="3" placeholder="Contoh: Sudah di-reset token dari portal pusat. Siswa dapat login kembali menggunakan token baru: XYZ123..." class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-go-red"></textarea>
+        </div>
+
+        <div class="pt-2 flex gap-2">
+          <button onclick="saveModalFollowUp()" class="flex-1 py-2.5 bg-go-red hover:bg-go-redHover text-white font-bold rounded-xl text-xs shadow transition-all">
+            <i class="fa-solid fa-check mr-1"></i> Simpan Hasil Follow Up
+          </button>
+          <button onclick="sendWaFromModal()" class="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow transition-all flex items-center gap-1.5">
+            <i class="fa-brands fa-whatsapp text-sm"></i> Kirim WA Langsung
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-slate-200 mt-12 py-4">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+      <div class="flex items-center space-x-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span>Sistem Helpdesk TOBK Ganesha Operation &copy; 2026/2027</span>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span class="hover:text-go-red cursor-pointer" onclick="switchTab('form')">Form Siswa</span>
+        <span>&bull;</span>
+        <span class="hover:text-go-red cursor-pointer" onclick="switchTab('dashboard')">Dashboard Rekap</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    // State Aplikasi
+    let currentJenjang = 'SD';
+    let currentTicketCode = '';
+    let currentFilterStatus = 'ALL';
+    let initialMetadata = null;
+    let isAdminAuthenticated = false;
+    let allReports = [];
+    let activeModalData = null;
+
+    // Mapel per Jenjang sesuai spesifikasi
+    const MAPEL_RULES = {
+      SD: ['Bahasa Indonesia', 'Matematika'],
+      SMP: ['Bahasa Indonesia', 'Matematika'],
+      SMA: ['TPS', 'Literasi']
+    };
+
+    // Saat Halaman Dimuat
+    document.addEventListener('DOMContentLoaded', () => {
+      initTicketCode();
+      renderMapelOptions('SD');
+      updateJenjangCardStyle('SD');
+      fetchInitialData();
+    });
+
+    // Generate random Ticket Code di frontend jika offline
+    function initTicketCode() {
+      const d = new Date();
+      const yr = String(d.getFullYear()).slice(-2);
+      const mo = String(d.getMonth() + 1).padStart(2, '0');
+      const da = String(d.getDate()).padStart(2, '0');
+      const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
+      currentTicketCode = `TOBK-${yr}${mo}${da}-${rand}`;
+      document.getElementById('displayTicketCode').innerText = currentTicketCode;
+    }
+
+    // Switch Tab
+    function switchTab(tab) {
+      document.getElementById('sectionForm').classList.add('hidden');
+      document.getElementById('sectionDashboard').classList.add('hidden');
+      document.getElementById('sectionSettings').classList.add('hidden');
+
+      // Reset tab button style
+      ['tabBtnForm', 'tabBtnDashboard', 'tabBtnSettings'].forEach(id => {
+        const el = document.getElementById(id);
+        el.className = 'px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all text-white hover:bg-white/10';
+      });
+
+      if (tab === 'form') {
+        document.getElementById('sectionForm').classList.remove('hidden');
+        document.getElementById('tabBtnForm').className = 'px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-bold transition-all bg-white text-go-red shadow';
+      } else if (tab === 'dashboard') {
+        document.getElementById('sectionDashboard').classList.remove('hidden');
+        document.getElementById('tabBtnDashboard').className = 'px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-bold transition-all bg-white text-go-red shadow';
+        if (isAdminAuthenticated) {
+          loadDashboardData();
+        } else {
+          document.getElementById('adminPinGate').classList.remove('hidden');
+          document.getElementById('adminContent').classList.add('hidden');
+        }
+      } else if (tab === 'settings') {
+        document.getElementById('sectionSettings').classList.remove('hidden');
+        document.getElementById('tabBtnSettings').className = 'px-2.5 py-1.5 rounded-lg text-xs md:text-sm font-bold transition-all bg-white text-go-red shadow';
+        loadSettings();
+      }
+    }
+
+    // Ganti Jenjang
+    function onJenjangChange(jenjang) {
+      currentJenjang = jenjang;
+      updateJenjangCardStyle(jenjang);
+      renderMapelOptions(jenjang);
+      populateSchoolList(jenjang);
+    }
+
+    function updateJenjangCardStyle(selected) {
+      ['SD', 'SMP', 'SMA'].forEach(j => {
+        const card = document.getElementById(`cardJenjang${j}`);
+        if (j === selected) {
+          card.classList.add('border-go-red', 'bg-red-50/50', 'ring-2', 'ring-go-red/20');
+          card.classList.remove('border-slate-200');
+        } else {
+          card.classList.remove('border-go-red', 'bg-red-50/50', 'ring-2', 'ring-go-red/20');
+          card.classList.add('border-slate-200');
+        }
+      });
+    }
+
+    // Render Pilihan Mapel berdasarkan Jenjang
+    function renderMapelOptions(jenjang) {
+      const container = document.getElementById('mapelOptionsContainer');
+      const list = MAPEL_RULES[jenjang] || ['Bahasa Indonesia', 'Matematika'];
+      
+      container.innerHTML = list.map((mapel, index) => `
+        <label class="flex items-center p-3 border border-slate-200 rounded-xl cursor-pointer hover:border-go-red transition-all bg-slate-50 mapel-label">
+          <input type="radio" name="mapelRadio" value="${mapel}" ${index === 0 ? 'checked' : ''} onchange="selectMapel('${mapel}')" class="text-go-red focus:ring-go-red mr-2.5 h-4 w-4">
+          <span class="font-bold text-xs md:text-sm text-slate-800">${mapel}</span>
+        </label>
+      `).join('');
+
+      selectMapel(list[0]);
+    }
+
+    function selectMapel(mapel) {
+      document.getElementById('inputSelectedMapel').value = mapel;
+    }
+
+    function appendKendalaTag(tag) {
+      const ta = document.getElementById('inputKendala');
+      if (ta.value.trim().length > 0) {
+        ta.value = ta.value.trim() + ', ' + tag;
+      } else {
+        ta.value = tag;
+      }
+    }
+
+    // Fetch Initial Data dari Apps Script
+    function fetchInitialData() {
+      if (typeof google === 'undefined' || !google.script) {
+        console.log("Mode offline / lokal preview.");
+        return;
+      }
+
+      google.script.run
+        .withSuccessHandler(res => {
+          initialMetadata = res;
+          if (res.isTelegramActive) {
+            document.getElementById('teleBadge').classList.remove('hidden');
+          }
+          populateSchoolList(currentJenjang);
+        })
+        .withFailureHandler(err => {
+          console.error("Gagal load metadata:", err);
+        })
+        .getInitialData();
+    }
+
+    function populateSchoolList(jenjang) {
+      const datalist = document.getElementById('listSekolah');
+      datalist.innerHTML = '';
+      if (!initialMetadata || !initialMetadata.schoolsByJenjang) return;
+
+      const schools = initialMetadata.schoolsByJenjang[jenjang] || [];
+      schools.forEach(sch => {
+        const opt = document.createElement('option');
+        opt.value = sch;
+        datalist.appendChild(opt);
+      });
+    }
+
+    // Auto Search Siswa dari Database Master
+    let searchTimeout = null;
+    function debounceSearchStudent() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        searchStudentInDb();
+      }, 350);
+    }
+
+    function searchStudentInDb() {
+      const q = document.getElementById('inputNamaSiswa').value.trim();
+      const school = document.getElementById('inputSekolah').value.trim();
+      const dropdown = document.getElementById('studentDropdown');
+
+      if (q.length < 2) {
+        dropdown.classList.add('hidden');
+        return;
+      }
+
+      if (typeof google === 'undefined' || !google.script) return;
+
+      document.getElementById('studentSearchStatus').innerText = 'Mencari siswa...';
+
+      google.script.run
+        .withSuccessHandler(results => {
+          document.getElementById('studentSearchStatus').innerText = '';
+          if (!results || results.length === 0) {
+            dropdown.classList.add('hidden');
+            return;
+          }
+
+          dropdown.innerHTML = results.map(s => `
+            <div onclick="selectStudent('${escapeQuotes(s.nama)}', '${escapeQuotes(s.noHp)}', '${escapeQuotes(s.sekolah)}')" class="p-2.5 hover:bg-red-50 cursor-pointer text-xs transition-all">
+              <div class="font-bold text-slate-800">${s.nama}</div>
+              <div class="text-[11px] text-slate-500 flex items-center justify-between mt-0.5">
+                <span><i class="fa-solid fa-school text-slate-400 mr-1"></i>${s.sekolah}</span>
+                <span class="font-mono text-emerald-600 font-semibold">${s.noHp || '-'}</span>
+              </div>
+            </div>
+          `).join('');
+
+          dropdown.classList.remove('hidden');
+        })
+        .withFailureHandler(err => {
+          document.getElementById('studentSearchStatus').innerText = '';
+        })
+        .searchStudents({ query: q, school: school, jenjang: currentJenjang });
+    }
+
+    function selectStudent(nama, noHp, sekolah) {
+      document.getElementById('inputNamaSiswa').value = nama;
+      if (noHp) {
+        let p = noHp.replace(/[^0-9]/g, '');
+        if (p.startsWith('62')) p = p.substring(2);
+        else if (p.startsWith('0')) p = p.substring(1);
+        document.getElementById('inputNoHp').value = p;
+      }
+      if (sekolah && !document.getElementById('inputSekolah').value) {
+        document.getElementById('inputSekolah').value = sekolah;
+      }
+      document.getElementById('studentDropdown').classList.add('hidden');
+    }
+
+    function onSekolahInput() {
+      // Optional trigger
+    }
+
+    // Submit Laporan
+    function handleFormSubmit(e) {
+      e.preventDefault();
+
+      const btn = document.getElementById('btnSubmitLaporan');
+      const originalText = btn.innerHTML;
+
+      const payload = {
+        ticketCode: currentTicketCode,
+        kota: document.getElementById('inputKota').value,
+        unit: document.getElementById('inputUnit').value,
+        jenjang: currentJenjang,
+        asalSekolah: document.getElementById('inputSekolah').value,
+        namaSiswa: document.getElementById('inputNamaSiswa').value,
+        noHp: document.getElementById('inputNoHp').value,
+        kodeTobk: document.getElementById('inputKodeTobk').value,
+        mapel: document.getElementById('inputSelectedMapel').value,
+        kendala: document.getElementById('inputKendala').value
+      };
+
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Mengirim Laporan ke Telegram...`;
+
+      if (typeof google === 'undefined' || !google.script) {
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+          Swal.fire({
+            icon: 'success',
+            title: 'Laporan Berhasil Disimpan (Demo)',
+            html: `Kode Tiket: <b>${payload.ticketCode}</b><br>Notifikasi siap dikirim via Telegram bot saat di Apps Script!`
+          });
+          resetForm();
+        }, 1200);
+        return;
+      }
+
+      google.script.run
+        .withSuccessHandler(res => {
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+
+          let teleInfo = res.telegramSent 
+            ? `<div class="mt-2 text-xs text-emerald-600 font-bold"><i class="fa-brands fa-telegram"></i> Laporan telah terkirim ke Grup Telegram Helpdesk!</div>`
+            : `<div class="mt-2 text-xs text-amber-600">Laporan tersimpan ke Spreadsheet (Telegram belum dikonfigurasi).</div>`;
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Laporan Berhasil Terkirim!',
+            html: `
+              <div class="space-y-2 text-sm text-left bg-slate-50 p-4 rounded-xl border border-slate-200">
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Kode Tiket:</span>
+                  <span class="font-mono font-black text-go-red">${res.ticketCode}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Waktu:</span>
+                  <span class="font-semibold text-slate-700">${res.timestamp}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Nama Siswa:</span>
+                  <span class="font-bold text-slate-900">${payload.namaSiswa}</span>
+                </div>
+              </div>
+              ${teleInfo}
+              <p class="text-xs text-slate-500 mt-3">Simpan Kode Tiket Anda untuk memantau status tindak lanjut.</p>
+            `,
+            confirmButtonText: 'Selesai & Buat Laporan Baru',
+            confirmButtonColor: '#C41230'
+          }).then(() => {
+            resetForm();
+          });
+        })
+        .withFailureHandler(err => {
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+          Swal.fire({
+            icon: 'error',
+            title: 'Gagal Mengirim Laporan',
+            text: err.message || err.toString()
+          });
+        })
+        .submitLaporan(payload);
+    }
+
+    function resetForm() {
+      document.getElementById('inputNamaSiswa').value = '';
+      document.getElementById('inputNoHp').value = '';
+      document.getElementById('inputKendala').value = '';
+      initTicketCode();
+    }
+
+    // ========================================================
+    // DASHBOARD & ADMIN LOGIC
+    // ========================================================
+
+    function handleAdminLogin() {
+      const pin = document.getElementById('inputAdminPin').value;
+      if (!pin) {
+        Swal.fire('Perhatian', 'Silakan masukkan PIN Admin.', 'warning');
+        return;
+      }
+
+      if (typeof google === 'undefined' || !google.script) {
+        if (pin === '1984' || pin === '1234') {
+          isAdminAuthenticated = true;
+          document.getElementById('adminPinGate').classList.add('hidden');
+          document.getElementById('adminContent').classList.remove('hidden');
+          loadDummyDashboard();
+        } else {
+          Swal.fire('Gagal', 'PIN salah! (Gunakan 1984 untuk demo)', 'error');
+        }
+        return;
+      }
+
+      google.script.run
+        .withSuccessHandler(res => {
+          if (res.success) {
+            isAdminAuthenticated = true;
+            document.getElementById('adminPinGate').classList.add('hidden');
+            document.getElementById('adminContent').classList.remove('hidden');
+            loadDashboardData();
+          } else {
+            Swal.fire('Gagal', res.message || 'PIN Admin salah!', 'error');
+          }
+        })
+        .withFailureHandler(err => {
+          Swal.fire('Error', err.toString(), 'error');
+        })
+        .verifyAdminPin(pin);
+    }
+
+    function loadDashboardData() {
+      const tbody = document.getElementById('tableLaporanBody');
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" class="py-8 text-center text-slate-400">
+            <i class="fa-solid fa-spinner fa-spin mr-2"></i> Mengambil data laporan terbaru...
+          </td>
+        </tr>
+      `;
+
+      const jenjang = document.getElementById('filterJenjang').value;
+      const search = document.getElementById('filterSearch').value;
+
+      if (typeof google === 'undefined' || !google.script) {
+        loadDummyDashboard();
+        return;
+      }
+
+      google.script.run
+        .withSuccessHandler(data => {
+          renderDashboard(data);
+        })
+        .withFailureHandler(err => {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="6" class="py-8 text-center text-red-500 font-bold">
+                Gagal memuat data: ${err.message || err}
+              </td>
+            </tr>
+          `;
+        })
+        .getDashboardData({
+          status: currentFilterStatus,
+          jenjang: jenjang,
+          search: search
+        });
+    }
+
+    function renderDashboard(data) {
+      // Update Stats
+      document.getElementById('statTotal').innerText = data.stats.total;
+      document.getElementById('statPending').innerText = data.stats.pending;
+      document.getElementById('statDone').innerText = data.stats.done;
+      document.getElementById('statPercent').innerText = data.stats.persentase;
+      document.getElementById('recordCountBadge').innerText = `${data.reports.length} Laporan`;
+
+      allReports = data.reports;
+      const tbody = document.getElementById('tableLaporanBody');
+
+      if (data.reports.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="py-8 text-center text-slate-400">
+              <i class="fa-regular fa-folder-open text-3xl mb-2 block"></i>
+              Tidak ada data laporan yang sesuai filter.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = data.reports.map((r, idx) => {
+        const isDone = r.status.toLowerCase().includes('selesai');
+        const statusBadge = isDone
+          ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800"><i class="fa-solid fa-circle-check mr-1"></i> Selesai</span>`
+          : `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 animate-pulse"><i class="fa-solid fa-clock mr-1"></i> Belum Follow Up</span>`;
+
+        const waUrl = generateWaLink(r);
+
+        return `
+          <tr class="hover:bg-slate-50/80 transition-all">
+            <td class="py-3 px-4">
+              <div class="font-mono font-bold text-slate-900">${r.ticketCode}</div>
+              <div class="mt-1">${statusBadge}</div>
+              <div class="text-[10px] text-slate-400 mt-1">${r.timestamp}</div>
+            </td>
+
+            <td class="py-3 px-4">
+              <div class="font-bold text-slate-800 text-xs">${r.namaSiswa}</div>
+              <div class="text-[11px] text-slate-500">${r.asalSekolah}</div>
+              <div class="text-[10px] text-slate-400">${r.kota} &bull; ${r.unit}</div>
+              <div class="font-mono text-emerald-600 font-semibold text-[11px] mt-0.5">${r.noHp}</div>
+            </td>
+
+            <td class="py-3 px-4">
+              <span class="inline-block px-2 py-0.5 rounded bg-slate-100 font-mono font-bold text-[11px] text-slate-700">${r.kodeTobk}</span>
+              <div class="font-semibold text-slate-800 mt-1">${r.mapel}</div>
+              <span class="text-[10px] text-slate-500 font-medium">Jenjang: ${r.jenjang}</span>
+            </td>
+
+            <td class="py-3 px-4 max-w-xs">
+              <div class="text-slate-700 line-clamp-3 text-xs bg-slate-50 p-2 rounded-lg border border-slate-100" title="${escapeQuotes(r.kendala)}">
+                "${r.kendala}"
+              </div>
+            </td>
+
+            <td class="py-3 px-4 max-w-xs">
+              ${r.catatanFollowUp ? `
+                <div class="text-xs text-emerald-900 bg-emerald-50/80 p-2 rounded-lg border border-emerald-100">
+                  <div class="font-bold text-[10px] text-emerald-700">Oleh: ${r.adminFollowUp || 'Admin'} (${r.waktuFollowUp || '-'})</div>
+                  <div class="mt-0.5">${r.catatanFollowUp}</div>
+                </div>
+              ` : `
+                <span class="text-slate-400 italic text-[11px]">Belum ada tindak lanjut</span>
+              `}
+            </td>
+
+            <td class="py-3 px-4 text-center">
+              <div class="flex items-center justify-center space-x-1.5">
+                <!-- Tombol Edit Follow Up -->
+                <button onclick="openModalFollowUp(${idx})" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-all" title="Input Hasil Follow Up">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+
+                <!-- Tombol Kirim WhatsApp -->
+                <a href="${waUrl}" target="_blank" class="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm" title="Kirim Balasan WA ke Siswa">
+                  <i class="fa-brands fa-whatsapp text-sm"></i>
+                  <span class="hidden md:inline">Kirim WA</span>
+                </a>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function setFilterStatus(status) {
+      currentFilterStatus = status;
+      ['fltStatusAll', 'fltStatusPending', 'fltStatusDone'].forEach(id => {
+        const el = document.getElementById(id);
+        el.className = 'px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900';
+      });
+
+      if (status === 'ALL') {
+        document.getElementById('fltStatusAll').className = 'px-3 py-1.5 rounded-lg bg-white shadow-sm text-slate-800 font-bold';
+      } else if (status === 'PENDING') {
+        document.getElementById('fltStatusPending').className = 'px-3 py-1.5 rounded-lg bg-white shadow-sm text-amber-700 font-bold';
+      } else if (status === 'DONE') {
+        document.getElementById('fltStatusDone').className = 'px-3 py-1.5 rounded-lg bg-white shadow-sm text-emerald-700 font-bold';
+      }
+
+      loadDashboardData();
+    }
+
+    let filterTimeout = null;
+    function debounceFilterSearch() {
+      clearTimeout(filterTimeout);
+      filterTimeout = setTimeout(() => {
+        loadDashboardData();
+      }, 300);
+    }
+
+    // Modal Follow Up Logic
+    function openModalFollowUp(idx) {
+      const data = allReports[idx];
+      if (!data) return;
+      activeModalData = data;
+
+      document.getElementById('modalTicketCode').innerText = data.ticketCode;
+      document.getElementById('modalNamaSiswa').innerText = data.namaSiswa;
+      document.getElementById('modalNoHp').innerText = data.noHp;
+      document.getElementById('modalKendalaText').innerText = `"${data.kendala}"`;
+      document.getElementById('modalStatusSelect').value = data.status.toLowerCase().includes('selesai') ? 'Selesai Follow Up' : 'Belum Follow Up';
+      document.getElementById('modalAdminName').value = data.adminFollowUp || '';
+      document.getElementById('modalCatatanFollowUp').value = data.catatanFollowUp || '';
+
+      document.getElementById('modalFollowUp').classList.remove('hidden');
+    }
+
+    function closeModalFollowUp() {
+      document.getElementById('modalFollowUp').classList.add('hidden');
+      activeModalData = null;
+    }
+
+    function saveModalFollowUp() {
+      if (!activeModalData) return;
+
+      const payload = {
+        ticketCode: activeModalData.ticketCode,
+        status: document.getElementById('modalStatusSelect').value,
+        admin: document.getElementById('modalAdminName').value.trim() || 'Admin GO',
+        catatan: document.getElementById('modalCatatanFollowUp').value.trim()
+      };
+
+      if (typeof google === 'undefined' || !google.script) {
+        activeModalData.status = payload.status;
+        activeModalData.adminFollowUp = payload.admin;
+        activeModalData.catatanFollowUp = payload.catatan;
+        closeModalFollowUp();
+        renderDashboard({ stats: { total: 1, pending: 0, done: 1, persentase: '100%' }, reports: allReports });
+        Swal.fire('Sukses', 'Follow up berhasil diperbarui (Demo)', 'success');
+        return;
+      }
+
+      Swal.fire({
+        title: 'Menyimpan...',
+        text: 'Mengupdate status tindak lanjut',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      google.script.run
+        .withSuccessHandler(res => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Berhasil Diperbarui',
+            text: res.message,
+            timer: 1500,
+            showConfirmButton: false
+          });
+          closeModalFollowUp();
+          loadDashboardData();
+        })
+        .withFailureHandler(err => {
+          Swal.fire('Error', err.toString(), 'error');
+        })
+        .updateFollowUp(payload);
+    }
+
+    function generateWaLink(r) {
+      let phone = String(r.noHp || '').replace(/[^0-9]/g, '');
+      if (phone.startsWith('0')) phone = '62' + phone.substring(1);
+      else if (!phone.startsWith('62')) phone = '62' + phone;
+
+      const solution = r.catatanFollowUp ? `\n\n*Hasil Tindak Lanjut / Solusi:*\n_${r.catatanFollowUp}_` : '';
+      const text = 
+        `Halo *${r.namaSiswa}*,\n` +
+        `Kami dari *Tim Helpdesk TOBK Ganesha Operation* mengonfirmasi laporan kendala TOBK kamu:\n\n` +
+        `🎫 *Kode Tiket:* ${r.ticketCode}\n` +
+        `📚 *Mapel:* ${r.mapel} (${r.kodeTobk})\n` +
+        `⚠️ *Kendala:* ${r.kendala}${solution}\n\n` +
+        `Status laporan kamu saat ini: *${r.status}*.\n` +
+        `Jika masih membutuhkan bantuan teknis lainnya, silakan balas pesan ini. Semangat TOBK-nya dan sukses selalu bersama GO!`;
+
+      return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+    }
+
+    function sendWaFromModal() {
+      if (!activeModalData) return;
+      activeModalData.catatanFollowUp = document.getElementById('modalCatatanFollowUp').value.trim();
+      const url = generateWaLink(activeModalData);
+      window.open(url, '_blank');
+    }
+
+    // ========================================================
+    // SETTINGS LOGIC
+    // ========================================================
+
+    function loadSettings() {
+      if (typeof google === 'undefined' || !google.script) return;
+
+      google.script.run
+        .withSuccessHandler(s => {
+          document.getElementById('settingBotToken').value = s.botToken || '';
+          document.getElementById('settingChatId').value = s.chatId || '';
+          document.getElementById('settingAdminPin').value = s.adminPin || '1984';
+        })
+        .getSettings();
+    }
+
+    function handleSaveSettings(e) {
+      e.preventDefault();
+      const settings = {
+        botToken: document.getElementById('settingBotToken').value,
+        chatId: document.getElementById('settingChatId').value,
+        adminPin: document.getElementById('settingAdminPin').value
+      };
+
+      if (typeof google === 'undefined' || !google.script) {
+        Swal.fire('Sukses', 'Pengaturan tersimpan (Demo Mode)', 'success');
+        return;
+      }
+
+      Swal.fire({
+        title: 'Menyimpan...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      google.script.run
+        .withSuccessHandler(res => {
+          Swal.fire('Sukses', res.message, 'success');
+          if (settings.botToken && settings.chatId) {
+            document.getElementById('teleBadge').classList.remove('hidden');
+          }
+        })
+        .withFailureHandler(err => {
+          Swal.fire('Error', err.toString(), 'error');
+        })
+        .saveSettings(settings);
+    }
+
+    function handleSetupDatabase() {
+      if (typeof google === 'undefined' || !google.script) return;
+
+      Swal.fire({
+        title: 'Inisialisasi Spreadsheet?',
+        text: 'Ini akan memastikan sheet Data_Siswa, Laporan_Kendala, dan Pengaturan siap digunakan.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#C41230',
+        confirmButtonText: 'Ya, Inisialisasi'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          google.script.run
+            .withSuccessHandler(res => {
+              Swal.fire('Sukses', res.message, 'success');
+            })
+            .setupSpreadsheet();
+        }
+      });
+    }
+
+    // Utility Helpers
+    function escapeQuotes(str) {
+      if (!str) return '';
+      return String(str).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    function loadDummyDashboard() {
+      const dummy = {
+        stats: { total: 2, pending: 1, done: 1, persentase: '50%' },
+        reports: [
+          {
+            ticketCode: 'TOBK-261029-A8F1',
+            timestamp: '2026-10-29 14:20',
+            namaSiswa: 'Aidan Syamil Ahmadi',
+            asalSekolah: 'SDIT AL WATHONIYAH',
+            jenjang: 'SD',
+            kota: 'Sumenep',
+            unit: 'Unit Jokotole',
+            noHp: '08123456789',
+            kodeTobk: 'TOBK 1 - TKA SD',
+            mapel: 'Matematika',
+            kendala: 'Soal nomor 15 gambar grafiknya tidak tampil dan layar menjadi putih.',
+            status: 'Belum Follow Up',
+            catatanFollowUp: '',
+            adminFollowUp: '',
+            waktuFollowUp: ''
+          },
+          {
+            ticketCode: 'TOBK-261029-B2C9',
+            timestamp: '2026-10-29 11:05',
+            namaSiswa: 'Aisyah Fajriyatun',
+            asalSekolah: 'SDIT AL WATHONIYAH',
+            jenjang: 'SD',
+            kota: 'Sumenep',
+            unit: 'Unit Agus Salim',
+            noHp: '08593655063',
+            kodeTobk: 'TOBK 1 - TKA SD',
+            mapel: 'Bahasa Indonesia',
+            kendala: 'Token error saat memulai ujian sesi 2.',
+            status: 'Selesai Follow Up',
+            catatanFollowUp: 'Token baru telah digenerate: GO-TKA-7788 dan dikirimkan via WA.',
+            adminFollowUp: 'Admin Cabang',
+            waktuFollowUp: '2026-10-29 11:30'
+          }
+        ]
+      };
+      renderDashboard(dummy);
+    }
+  </script>
+
+</body>
+</html>
